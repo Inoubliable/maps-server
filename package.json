@@ -10,7 +10,9 @@
   "author": "Tim Janzelj",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "express": "^4.15.3",
+    "firebase": "^4.1.1",
     "socket.io": "^2.0.2"
   }
 }
