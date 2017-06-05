@@ -21,26 +21,68 @@ app.get('/login', (req, res) => {
 
 	// send him his id
 	res.json({id: newUserRef.key});
-
-	res.end();
 });
+
 app.get('/users', (req, res) => {
-	var usersRef = firebase.ref().child('users');
+	// if all query params are specified, return users within range
+	if(req.query.lat && req.query.lng && req.query.r) {
+		var centerLat = parseFloat(req.query.lat);
+		var centerLng = parseFloat(req.query.lng);
+		var r = parseFloat(req.query.r);
+		var minLat = centerLat - r;
+		var maxLat = centerLat + r;
+		var minLng = centerLng - r;
+		var maxLng = centerLng + r;
 
-	usersRef.once('value').then((snapshot) => {
-		var users = snapshot.val() || {};
-		var keys = Object.keys(users);
-		var parsedUsers = [];
-		var lastUser;
-		keys.forEach((key) => {
-			parsedUsers.push(users[key]);
-			lastUser = parsedUsers.slice(-1)[0];
-			lastUser.id = key;
+		var usersRef = firebase.ref().child('users');
+		usersRef.on('value', (snapshot) => {
+			var users = snapshot.val() || {};
+			var keys = Object.keys(users);
+			var parsedUsers = [];
+			var lastUser;
+			keys.forEach((key) => {
+				if(users[key].lat <= maxLat 
+					&& users[key].lat >= minLat 
+					&& users[key].lng <= maxLng 
+					&& users[key].lng >= minLng) {
+
+					parsedUsers.push(users[key]);
+					lastUser = parsedUsers.slice(-1)[0];
+					lastUser.id = key;
+				}
+			});
+
+			res.json(parsedUsers);
 		});
+	} else { // if not all query params are specified, return all users
+		var usersRef = firebase.ref().child('users');
+		usersRef.on('value', (snapshot) => {
+			var users = snapshot.val() || {};
+			var keys = Object.keys(users);
+			var parsedUsers = [];
+			var lastUser;
+			keys.forEach((key) => {
+				parsedUsers.push(users[key]);
+				lastUser = parsedUsers.slice(-1)[0];
+				lastUser.id = key;
+			});
 
-		res.json(parsedUsers);
+			res.json(parsedUsers);
+		});
+	}
+});
+
+app.get('/users/:id', (req, res) => {
+	var userId = req.params.id;
+	var userRef = firebase.ref('users/' + userId);
+
+	userRef.once('value').then((snapshot) => {
+		var user = snapshot.val() || {};
+
+		res.json(user);
 	});
 });
+
 app.post('/users/:id', (req, res) => {
 	var userId = req.params.id;
 	var lat = req.body.lat;
@@ -57,7 +99,8 @@ app.get('/add', (req, res) => {
 	var newUserRef = firebase.ref().child('users').push();
 	newUserRef.set({
 		lat: testLat,
-		lng: testLng
+		lng: testLng,
+		time: Date.now()
 	});
 
 	testLat++;
