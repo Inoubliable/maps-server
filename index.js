@@ -13,12 +13,14 @@ app.use(bodyParser.urlencoded({extended: true})); // to support URL-encoded bodi
 var db = require('./config/database');
 var firebase = db.database();
 
-app.get('/login', (req, res) => {
+app.post('/login', (req, res) => {
+	var lat = req.body.lat || 0;
+	var lng = req.body.lng || 0;
 	// insert new user into db
 	var newUserRef = firebase.ref().child('users').push();
 	newUserRef.set({
-		lat: 0,
-		lng: 0
+		lat: lat,
+		lng: lng
 	});
 
 	// send him his id
@@ -96,6 +98,13 @@ app.post('/users/:id', (req, res) => {
 	res.end();
 });
 
+app.delete('/users/:id', (req, res) => {
+	var userId = req.params.id;
+	firebase.ref('users/' + userId).remove();
+
+	res.end();
+});
+
 var allParkings = {
 	"Petkovškovo nabrežje II.": {lat: 46.0521351, lng: 14.5093453, all: 0, available: 0},
 	"NUK II.": {lat: 46.0463566, lng: 14.5017598, all: 0, available: 0},
@@ -159,7 +168,7 @@ function scrapeParkings(callback) {
 app.get('/parkings', (req, res) => {
 
 	scrapeParkings(function() {
-		res.json(allParkings)
+		res.json(allParkings);
 	});
 
 });
