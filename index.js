@@ -58,21 +58,6 @@ app.get('/users', (req, res) => {
 			});
 			res.json(parsedUsers);
 		});
-	} else { // if not all query params are specified, return all users
-		var usersRef = firebase.ref().child('users');
-		usersRef.on('value', (snapshot) => {
-			var users = snapshot.val() || {};
-			var keys = Object.keys(users);
-			var parsedUsers = [];
-			var lastUser;
-			keys.forEach((key) => {
-				parsedUsers.push(users[key]);
-				lastUser = parsedUsers.slice(-1)[0];
-				lastUser.id = key;
-			});
-
-			res.json(parsedUsers);
-		});
 	}
 });
 
