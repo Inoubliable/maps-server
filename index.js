@@ -14,8 +14,8 @@ var db = require('./config/database');
 var firebase = db.database();
 
 app.post('/login', (req, res) => {
-	var lat = req.body.lat;
-	var lng = req.body.lng;
+	var lat = parseFloat(req.body.lat);
+	var lng = parseFloat(req.body.lng);
 	// insert new user into db
 	var newUserRef = firebase.ref().child('users').push();
 	newUserRef.set({
@@ -89,8 +89,8 @@ app.get('/users/:id', (req, res) => {
 
 app.post('/users/:id', (req, res) => {
 	var userId = req.params.id;
-	var lat = req.body.lat;
-	var lng = req.body.lng;
+	var lat = parseFloat(req.body.lat);
+	var lng = parseFloat(req.body.lng);
 	firebase.ref('users/' + userId).update({ lat: lat, lng: lng });
 
 	res.end();
