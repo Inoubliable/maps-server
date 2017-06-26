@@ -14,13 +14,14 @@ var db = require('./config/database');
 var firebase = db.database();
 
 app.post('/login', (req, res) => {
-	var lat = req.body.lat || 0;
-	var lng = req.body.lng || 0;
+	var lat = req.body.lat;
+	var lng = req.body.lng;
 	// insert new user into db
 	var newUserRef = firebase.ref().child('users').push();
 	newUserRef.set({
 		lat: lat,
-		lng: lng
+		lng: lng,
+		time: Date.now()
 	});
 
 	// send him his id
@@ -28,7 +29,6 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/users', (req, res) => {
-	var testStart = Date.now();
 	// if all query params are specified, return users within range
 	if(req.query.lat && req.query.lng && req.query.r) {
 		var centerLat = parseFloat(req.query.lat);
@@ -56,8 +56,6 @@ app.get('/users', (req, res) => {
 					lastUser.id = key;
 				}
 			});
-			var testEnd = Date.now();
-			console.log(testEnd - testStart);
 			res.json(parsedUsers);
 		});
 	} else { // if not all query params are specified, return all users
@@ -171,24 +169,6 @@ app.get('/parkings', (req, res) => {
 		res.json(allParkings);
 	});
 
-});
-
-// add testing users
-app.get('/addTestUsers/:num', (req, res) => {
-	var num = req.params.num;
-	var testLat, testLng;
-	for (i = 0; i < num; i++) {
-		testLat = Math.random() * 170 - 85;
-		testLng = Math.random() * 360 - 180;
-		var newUserRef = firebase.ref().child('users').push();
-		newUserRef.set({
-			lat: testLat,
-			lng: testLng,
-			time: Date.now()
-		});
-	}
-
-	res.end();
 });
 
 const PORT = process.env.PORT || 3000;
