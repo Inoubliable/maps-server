@@ -59,7 +59,7 @@ app.get('/users', (req, res) => {
 			res.json(parsedUsers);
 		});
 	} else { // if not all query params are specified, return all users
-		
+		res.send('No parameters!');
 	}
 });
 
