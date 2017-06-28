@@ -29,6 +29,9 @@ app.post('/login', (req, res) => {
 });
 
 app.get('/users', (req, res) => {
+
+	var parsedUsers = [];
+
 	// if all query params are specified, return users within range
 	if(req.query.lat && req.query.lng && req.query.r) {
 		var centerLat = parseFloat(req.query.lat);
@@ -43,7 +46,6 @@ app.get('/users', (req, res) => {
 		usersRef.on('value', (snapshot) => {
 			var users = snapshot.val() || {};
 			var keys = Object.keys(users);
-			var parsedUsers = [];
 			var lastUser;
 			keys.forEach((key) => {
 				if(users[key].lat <= maxLat 
@@ -56,9 +58,22 @@ app.get('/users', (req, res) => {
 					lastUser.id = key;
 				}
 			});
-			res.json(parsedUsers);
+		});
+	} else {
+		var usersRef = firebase.ref().child('users');
+		usersRef.on('value', (snapshot) => {
+			var users = snapshot.val() || {};
+			var keys = Object.keys(users);
+			var lastUser;
+			keys.forEach((key) => {
+				parsedUsers.push(users[key]);
+				lastUser = parsedUsers.slice(-1)[0];
+				lastUser.id = key;
+			});
 		});
 	}
+
+	res.json(parsedUsers);
 });
 
 app.get('/users/:id', (req, res) => {
