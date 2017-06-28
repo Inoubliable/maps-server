@@ -59,6 +59,8 @@ app.get('/users', (req, res) => {
 				}
 			});
 		});
+		
+		res.json(parsedUsers);
 	} else {
 		var usersRef = firebase.ref().child('users');
 		usersRef.on('value', (snapshot) => {
@@ -71,9 +73,10 @@ app.get('/users', (req, res) => {
 				lastUser.id = key;
 			});
 		});
+		
+		res.json(parsedUsers);
 	}
 
-	res.json(parsedUsers);
 });
 
 app.get('/users/:id', (req, res) => {
