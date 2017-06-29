@@ -136,6 +136,7 @@ var allParkings = {
 	"P+R Barje": {lat: 46.0270564, lng: 14.4982871, all: 0, available: 0},
 	"Območja čas. om. park.": {lat: 0, lng: 0, all: 0, available: 0}
 };
+var formattedParkings = [];
 
 function scrapeParkings(callback) {
 	var parkiriscaUrl = 'http://www.lpt.si/parkirisca/parkirisca';
@@ -159,6 +160,14 @@ function scrapeParkings(callback) {
 
             	allParkings[name].all = all;
             	allParkings[name].available = available;
+
+				var keys = Object.keys(allParkings);
+				var lastParking;
+				keys.forEach((key) => {
+					formattedParkings.push(allParkings[key]);
+					lastParking = formattedParkings.slice(-1)[0];
+					lastParking.name = key;
+				});
             });
         }
 
@@ -169,7 +178,7 @@ function scrapeParkings(callback) {
 app.get('/parkings', (req, res) => {
 
 	scrapeParkings(function() {
-		res.json(allParkings);
+		res.json(formattedParkings);
 	});
 
 });
