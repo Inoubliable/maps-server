@@ -144,6 +144,7 @@ function scrapeParkings(callback) {
 	request(parkiriscaUrl, function(error, response, html){
 
         if(!error){
+			formattedParkings = [];
 
             var $ = cheerio.load(html);
             var parkirisca = $('tr.table_list');
@@ -160,15 +161,15 @@ function scrapeParkings(callback) {
 
             	allParkings[name].all = all;
             	allParkings[name].available = available;
-
-				var keys = Object.keys(allParkings);
-				var lastParking;
-				keys.forEach((key) => {
-					formattedParkings.push(allParkings[key]);
-					lastParking = formattedParkings.slice(-1)[0];
-					lastParking.name = key;
-				});
             });
+
+			var names = Object.keys(allParkings);
+			var lastParking;
+			names.forEach((name) => {
+				formattedParkings.push(allParkings[name]);
+				lastParking = formattedParkings.slice(-1)[0];
+				lastParking.name = name;
+			});
         }
 
         callback();
