@@ -99,6 +99,12 @@ app.post('/users/:id', (req, res) => {
 	res.end();
 });
 
+app.delete('/users', (req, res) => {
+	firebase.ref('users').remove();
+
+	res.end();
+});
+
 app.delete('/users/:id', (req, res) => {
 	var userId = req.params.id;
 	firebase.ref('users/' + userId).remove();
